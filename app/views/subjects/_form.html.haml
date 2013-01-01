@@ -1,0 +1,18 @@
+
+= simple_form_for(@subject) do |f|
+  %fieldset.form-list
+    %legend
+      = @subject.id.nil? ? "New" : "Edit"
+      <!--  model_breadcrumbs   -->
+      
+    .form-fields
+      = f.error_notification
+      .form-inputs
+        = f.input :name
+        = f.error :base
+
+      .form-action
+        = f.button :submit
+  
+
+

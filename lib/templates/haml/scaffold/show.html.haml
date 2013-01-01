@@ -1,0 +1,17 @@
+%fieldset.show-list
+  %legend
+    <%=singular_table_name.capitalize%>
+    %span.action-links
+      = link_to 'Edit', edit_<%= singular_table_name %>_path(@<%= singular_table_name %>) if can?(:update,@<%= singular_table_name %>)
+      = link_to 'Destroy', @<%= singular_table_name %>, <%= key_value :method, ":delete" %>, <%= key_value :data, "{ #{key_value :confirm, "'Are you sure?'"} }" %> if can?(:destroy,@<%= singular_table_name %>)
+      breadcrumbs
+  %table
+<%- for attribute in attributes -%>
+    %tr
+      %th <%= attribute.human_name %>:
+      %td= @<%= singular_table_name %>.<%= attribute.name %>
+<%- end -%>
+.action-bar
+  %span.navspan
+.relations
+  .related

@@ -1,0 +1,21 @@
+%fieldset.index-list
+  %legend
+    Subjects
+    %span.action-links
+      = link_to 'New Subject', new_subject_path
+      <!--  model_breadcrumbs   -->
+
+  %table
+    %tr.list-header
+      %th Name
+      %th Actions
+
+    - altswitch = false
+    - @subjects.each do |subject|
+      - altswitch = !altswitch
+      - altclass = altswitch ? "" : "alt"
+      %tr{:class => altclass}
+        %td= subject.name
+        %td= action_links(subject)
+
+

@@ -1,0 +1,31 @@
+= #@what.inspect
+- if true
+
+  -title "Relations" 
+  - relations =  @what.response[:hash][:relations]
+  - if relations.empty?
+    %h5 
+      New's to me! What's =>
+      = @what.response[:query]
+  - else
+  
+    - relations.each do |relation|
+      - subjects = relation.has_key?(:subject)
+      - tags = relation.has_key?(:tag)
+      - values = relation.has_key?(:value)
+      - unless subjects || tags || values
+        %h5 
+          New's to me! What's =>
+          = @what.response[:query]
+      -else
+        #edited
+      
+        - if tags
+          =  tag_root(relation[:tag])
+      
+        - if subjects #TODO don't thing this exists
+          = subject_root([relation[:subject]])
+      
+        - if values        
+          = values_root([relation[:value]])
+

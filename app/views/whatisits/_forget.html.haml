@@ -1,0 +1,38 @@
+=@what.inspect
+
+/ <What:0x00000101e6f2b0 @tuple={:subject=>{:has=>true, :id=>1}, :tag=>{:has=>false, :id=>nil}, :value=>{:has=>false, :id=>nil}}, @response={:action=>"forget", :what=>"change_subject", :target=>"subject", :subject=>"stevev", :tag=>"", :value=>"", :subject_id=>1, :id=>1, :tags=>["daughter", "son", "son", "Phone", "Alias", "Phone", "Mother", "Works_at", "Phone", "Phone"], :values=>["Home", "Mobile", "home", "Wanda P Hrobak", "work", "Steven V Alex", "crapper", "jamesv", "stever", "loria"], :query=>"forget's stevev"}>
+%h5 
+  Okay, we can Forget's
+  - target = @what.response[:target]
+  - id = target + "_id"
+  = id
+  - ids = @what.response[id.to_sym]
+  = target.capitalize
+= form_tag  forget_whatisit_path(target), :method => :put do
+  = hidden_field_tag 'delete[model]', target.capitalize
+  -if ids.class == Array
+    - ids.each do |i|
+      = hidden_field_tag 'delete[id][]', i
+  -else
+    = hidden_field_tag 'delete[id]', ids
+  
+  %ul
+    %li="What: #{target.capitalize}"
+    %li="Id: #{@what.response[id.to_sym]}"
+    %li="Tags: #{@what.response[:tags]}" 
+    %li="Values: #{@what.response[:values]}"
+     
+  .boxed
+    %p
+      Confirm you want to Forget's this item and associated items
+      %span.boxed-item
+        Yes
+        = radio_button_tag('delete[delete_what]', true)
+      %span.boxed-item
+        No
+        =radio_button_tag('delete[delete_what]', false)
+      = submit_tag "Forget's #{target.capitalize}", :class => 'boxed-item'
+      
+
+
+

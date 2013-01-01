@@ -1,0 +1,59 @@
+- flash.each do |name, msg| 
+  = content_tag :div, msg.html_safe, class: "#{name}"
+%h5 WhatIsIt? is takeoff on an old Apple II database from 1978 called WHATSIT or Wow! How'd All That Stuff Get In There?
+
+#fieldset.boxed
+  %legend WhatIsIt?
+  = form_tag  query_whatisits_path, :method => :put do
+    = search_field_tag :query, nil,:size => 50, :autofocus => true
+    = submit_tag "WhatIsIt?", :class => 'dim'
+  <hr />   
+  
+  .subject 
+    Subjects:
+    - @subjects.each do |i|
+      = link_to i, query_whatisits_path(:query => i)
+    
+  .tags
+    Tags:
+    - @tags.each do |i|
+      = link_to i, query_whatisits_path(:query => i)
+   
+  .value 
+    Values:
+    - @values.each do |i|
+      = link_to i, query_whatisits_path(:query => i.gsub(" ",'_'))
+   
+%br/
+.instructions
+  %h5 Short Instructions
+  <p>Whatsit was a command line database I first saw at the 1978 West Coast Computer Fair. I think I actually bought it and was
+  amazed by what it could do. I had made several attempts over the years to replicate it, but only got so far. I decided to make another 
+  attempt using RoR. I still remember typing in a command, listening the disk spin and grind and spit out the information. I can't find 
+  much on it on the web, but found this 
+  <a href="http://www.moofgroup.com/moof/Roby_Sherman/Adventures_in_Silicon/Entries/2006/12/27_Wow!_Howd_All_That_Stuff_Get_In_There.html">
+  link</a> that display what the command line interaction looked like.
+  </p>
+  <p>I was going to attempt the command line interaction using AJAX and javascript, but chickened out. What I came up with is close. The submit button is
+  grayed out, but usable (or just use the Return key in the search field). 
+  I added radio buttons instead of a text box for the Yes/No inputs. Susan, Sheila and Doug may remember an early attempt at
+  the TechnaCenter using some database that I can't remember the name(Remembered Reflex - I think?).
+  </p>
+  <p>There are only three commands: What's, Who's and Isn't. Isn't deletes a Subject or Tag and is the only command that is required. The database has three
+  models: Subject->Tag<-Value (S/T/V). Subject and Tab attribute name must not contain spaces, use underscores. Value is wide open. The Subject name is forced to unique.
+  I took some liberty with the commands:
+  <ul>
+  <li> What's Steve's Phone's is the same as Steve's Phone's or just drop the 's and use Steve phone.</li> 
+  <li> Who's dumps a Subject, but just typing the subject name will do the same</li>
+  <li> You can add a new relation by simple type three or more words: Steve Phone Home::256-467-4348</li>
+  <li> The double colon allows you to add more information to the value. If you modify the Value, you can actually add other attributes</li>
+  <li> Typing three words that match S/T/V will allow you to change the Value</li>
+  <li> Typing two words that match S/T and a third word that does not match V, will allow to append a new Value using the same Tag</li>
+  <li> All searches use ILIKE with a '%' wild card. StE% will find Steve. Classic wild cards: word% = starts with, %word% = contains, %word = ends with</li>
+  <li> Typing one word will look for that name in all models.</li>
+  <li> Typing two words will first look for Subject/Tag and if not found will look at all the relations: Phone Home will find anyones home phone.
+  Steve Wanda% will Steve's mother if Mother is the tag that links Steve to Wanda P Hrobak </li>
+  </ul>
+  </p> 
+  
+  %h5 That Be It!

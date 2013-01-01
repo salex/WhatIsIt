@@ -1,0 +1,12 @@
+<%%= simple_form_for(@<%= singular_table_name %>) do |f| %>
+  <div class="form-fields">
+    <%%= f.error_notification %>
+    <%- attributes.each do |attribute| -%>
+      <%%= f.<%= attribute.reference? ? :association : :input %> :<%= attribute.name %> %>
+    <%- end -%>
+    <%%= f.error_base %>
+    <div class="form-action">
+      <%%= f.button :submit %>
+    </div>
+  </div>
+<%% end %>

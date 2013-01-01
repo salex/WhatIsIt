@@ -1,0 +1,15 @@
+%fieldset.show-list
+  %legend
+    Subject
+    %span.action-links
+      = link_to 'Edit', edit_subject_path(@subject) if can?(:update,@subject)
+      = link_to 'Destroy', @subject, method: :delete, data: { confirm: 'Are you sure?' } if can?(:destroy,@subject)
+      <!--  model_breadcrumbs   -->
+  %table
+    %tr
+      %th Name:
+      %td= @subject.name
+.action-bar
+  %span.navspan
+.relations
+  .related

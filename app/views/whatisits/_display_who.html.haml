@@ -1,0 +1,15 @@
+=#@what.response.inspect
+-if true
+  -title "Who" 
+
+  -unless  @what.response[:hash][:subject].empty?
+    #edited
+    = subject_root(@what.response[:hash][:subject][0]) #render_subjects
+          
+  - else
+    %h5
+      New's to me!
+      Don't recognize
+      = @what.response[:query]
+   
+          

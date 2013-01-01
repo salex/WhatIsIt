@@ -1,0 +1,55 @@
+// Place all the styles related to the whats controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+p { line-height: 1.2em; }
+
+h1 { font-size: 1.6em; font-weight:bold;}
+
+h2 { font-size: 1.4em; font-weight:bold; padding:3px;}
+
+h3 { font-size: 1.2em; font-weight:bold;}
+
+h4 { font-size: 1.1em; font-weight:bold;}
+
+h5 { font-size: 1em; font-weight:bold;
+  -webkit-margin-before: 0.5em;
+  -webkit-margin-after: 0.5em;
+  
+  }
+
+code { font-family: monospace}
+
+ul {margin: 0.5em 0.75em;
+  padding:0 0 0 0.5em}
+li {margin: 0 0.5em;}
+
+.error, .alert {color:red; background-color:pink; 
+  border:solid 1px red; padding:4px;width:90%;margin-left:auto; margin-right: auto;}
+.notice {color:green;width:100%; background-color:LightGreen; 
+  border:solid 1px green; padding:4px;margin-left:auto; margin-right: auto;}
+
+.dim {color: #aaa; border-color:#eee; background-color:#eee}
+.boxed {
+  border: solid 1px #aaa;
+  padding: 4px;
+  margin-right:3px;
+  text_valign:top;
+}
+.boxed-item {
+  border: solid 1px #aaa;
+  padding: 4px;
+  margin-right:3px;
+  background-color:white;
+  text_valign:top;
+}
+
+#container { background: #eeeedd; 
+  width: 960px; 
+  padding: 6px; 
+  margin: auto;
+  position:relative;
+  min-height: 720px;
+  border: solid 1px brown;
+}
+.instructions { width:720px; background_color:white;  padding:2px; margin-left:auto; margin-right: auto; line-height: 0.9em;}

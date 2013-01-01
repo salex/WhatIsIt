@@ -1,0 +1,20 @@
+
+= simple_form_for(@<%= singular_table_name %>) do |f|
+  %fieldset.form-list
+    %legend
+      = @<%= singular_table_name %>.id.nil? ? "New" : "Edit"
+      breadcrumbs-here
+      
+    .form-fields
+      = f.error_notification
+      .form-inputs
+      <%- attributes.each do |attribute| -%>
+        = f.<%= attribute.reference? ? :association : :input %> :<%= attribute.name %>
+      <%- end -%>
+        = f.error :base
+
+      .form-action
+        = f.button :submit
+  
+
+

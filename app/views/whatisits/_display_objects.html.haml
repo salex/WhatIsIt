@@ -1,0 +1,23 @@
+= #@what.inspect
+- if true
+  -title "Objects" 
+  - subjects =  @what.response[:hash][:subjects]
+  - tags = @what.response[:hash][:tags]
+  - values = @what.response[:hash][:values]
+  - if subjects.empty? && tags.empty? && values.empty?
+  
+    %h5 
+      New's to me! What's =>
+      = @what.response[:query]
+  -else
+    #edited
+  
+    - unless tags.empty?
+      = tags_root(tags)
+      
+    - unless subjects.empty?
+      = subject_root(subjects[0])
+      
+    - unless values.empty?
+      =values_root(values)
+

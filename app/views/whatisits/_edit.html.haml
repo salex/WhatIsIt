@@ -1,0 +1,97 @@
+-title "Edit" 
+
+= @what.inspect
+
+- case @what.response[:what]
+- when 'new_tuple'
+  %h5 Add new subject, tag and value?
+  = form_tag  whatisits_path, :method => :put do
+    = hidden_field_tag :response, @what.response.to_json
+    %ul
+      %li="Subject: #{@what.response[:subject]}'s"
+      %li="Tag: #{@what.response[:tag]}"
+      %li="Value: #{@what.response[:value]}"
+      %li="Info: #{@what.response[:info]}"
+    %p 
+      New subject, tag and value? 
+      
+      %span.boxed
+        Yes
+        = radio_button_tag('edit[new_tuple]', true)
+      %span.boxed
+        No
+        =radio_button_tag('edit[new_tuple]', false)
+      = submit_tag "Add Stuff?", :class => 'dim'
+    
+  
+
+- when 'new_tag_and_value'
+
+  %h5= "Whoa! I couldn't find that item for #{@what.response[:subject]}. Add tag and value?"
+  = form_tag  whatisits_path, :method => :put do
+    = hidden_field_tag :response, @what.response.to_json
+    %ul
+      %li="Subject: #{@what.response[:subject]}'s"
+      %li="New Tag: #{@what.response[:tag]}"
+      %li="New Value: #{@what.response[:value]}"
+      %li="New Info: #{@what.response[:info]}"
+    %p 
+      New tag and value? 
+      
+      %span.boxed
+        Yes
+        = radio_button_tag('edit[new_tag_and_value]', true)
+      %span.boxed
+        No
+        =radio_button_tag('edit[new_tag_and_value]', false)
+      = submit_tag "Add Stuff?", :class => 'dim'
+    
+      
+
+- when 'append_value'
+  %h5= "Whoa! I couldn't find that #{@what.response[:tag]} for #{@what.response[:subject]}. Add a new value?"
+  = form_tag  whatisits_path, :method => :put do
+    = hidden_field_tag :response, @what.response.to_json
+    %ul
+      %li="Subject: #{@what.response[:subject]}'s"
+      %li="Tag: #{@what.response[:tag]}"
+      %li="New Value: #{@what.response[:value]}"
+      %li="New Info: #{@what.response[:info]}"
+    %p 
+      New  value? 
+    
+      %span.boxed
+        Yes
+        = radio_button_tag('edit[append_value]', true)
+      %span.boxed
+        No
+        =radio_button_tag('edit[append_value]', false)
+      = submit_tag "Add Stuff?", :class => 'dim'
+  
+- when 'change_value'
+  %h5 Okay, we can change the value and the additional information.
+  = form_tag  whatisits_path, :method => :put do
+    = hidden_field_tag :response, @what.response.to_json
+    %ul
+      %li="Subject: #{@what.response[:subject]}'s"
+      %li="Tag: #{@what.response[:tag]}"
+      %li="Old Value: #{@what.response[:value]}"
+      %li="Old Info: #{@what.response[:info]}"
+    .boxed
+      %table.boxed
+        %tr
+          %td New Value:
+          %td= text_field_tag('edited[name]', nil )
+          %td New Info:
+          %td= text_area_tag('edited[info]',nil, :rows => 5 )
+      %p
+    
+        %span.boxed
+          Yes
+          = radio_button_tag('edit[change_value]', true)
+        %span.boxed
+          No
+          =radio_button_tag('edit[change_value]', false)
+        = submit_tag "Change Stuff?", :class => 'dim'
+  
+

@@ -1,0 +1,19 @@
+=#@what.response.inspect
+-if true
+  - if @what.response[:hash][:relations]
+    = render 'display_relations'
+  -else
+    -title "Tag" 
+    - if @what.response[:hash][:tags].empty?
+      %h5 
+      New's to me!
+      Don't recognize
+      = @what.response[:query]
+    -else
+      #edited
+      = tags_root(@what.response[:hash][:tags])
+      
+      / - if @what.response[:hash][:tags][0][:values]
+      /   = tags_root(@what.response[:hash][:tags])
+      / -else
+      /   = render_tags(@what.response[:hash][:tags])

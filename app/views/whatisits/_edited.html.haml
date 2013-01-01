@@ -1,0 +1,89 @@
+-if true
+  - if @what.target == "change_value"
+    -value = @what.response[:value]
+    %h5 
+    Okay, we can change the value 
+    = value_query(value) + " and the additional information."
+    = form_tag  update_model_whatisit_path(value["id"]), :method => :put do
+      = hidden_field_tag 'edited[id]', value["id"]
+      = hidden_field_tag 'edited[model]', 'Value'
+      %ul
+        %li="Subject: #{value[:subject]['name']}'s"
+        %li="Tag: #{value[:tags][0]['name']}"
+        %li="Old Value: #{value['name']}"
+        %li="Old Info: #{value['info']}"
+      .boxed
+        %table.boxed
+          %tr
+            %td New Value:
+            %td= text_field_tag('edited[name]', value['name'] )
+            %td New Info:
+            %td= text_area_tag('edited[info]',hash_to_info(value['info']), :rows => 5, :cols => 35 )
+        %p
+
+          %span.boxed
+            Yes
+            = radio_button_tag('edit[change_value]', true)
+          %span.boxed
+            No
+            =radio_button_tag('edit[change_value]', false)
+          = submit_tag "Change Stuff?", :class => 'dim'
+  -elsif @what.target == "change_tag"
+    - tag = @what.response[:tag]
+    %h5
+      Okay, we can change
+      = tag_query(tag).html_safe + "'s name."
+    = form_tag  update_model_whatisit_path(tag["id"]), :method => :put do
+      = hidden_field_tag 'edited[id]', tag["id"]
+      = hidden_field_tag 'edited[model]', 'Tag'
+      %ul
+        %li="Subject: #{tag[:subject]['name']}'s"
+        %li="Tags: #{tag['name']}"
+        %li="Values: #{tag[:value]['name']}"
+      
+      .boxed
+        %table.boxed
+          %tr
+            %td New Value:
+            %td= text_field_tag('edited[name]', tag['name'] )
+        %p
+
+          %span.boxed
+            Yes
+            = radio_button_tag('edit[change_value]', true)
+          %span.boxed
+            No
+            =radio_button_tag('edit[change_value]', false)
+          = submit_tag "Change Stuff?", :class => 'dim'
+    
+    
+  -elsif @what.target == "change_subject"
+    -subject = @what.response[:subject]
+  
+    %h5 
+      Okay, we can change
+      = subject_query(subject).html_safe + "'s name, but it must be unique."
+    = form_tag  update_model_whatisit_path(subject["id"]), :method => :put do
+      = hidden_field_tag 'edited[id]', subject["id"]
+      = hidden_field_tag 'edited[model]', 'Subject'
+      %ul
+        %li="Subject: #{subject['name']}'s"
+        %li="Tags: #{subject[:tags].count}"
+        %li="Values: #{@subject.values.count}"
+        
+      .boxed
+        %table.boxed
+          %tr
+            %td New Value:
+            %td= text_field_tag('edited[name]', subject['name'] )
+        %p
+
+          %span.boxed
+            Yes
+            = radio_button_tag('edit[change_value]', true)
+          %span.boxed
+            No
+            =radio_button_tag('edit[change_value]', false)
+          = submit_tag "Change Stuff?", :class => 'dim'
+    
+
