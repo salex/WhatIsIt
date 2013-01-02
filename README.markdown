@@ -1,13 +1,14 @@
 ### WhatIsIt
 
-<p>WHATSIT was a command line database I first saw at the 1978 West Coast Computer Fair. I think I actually bought it and was
+WHATSIT was a command line database I first saw at the 1978 West Coast Computer Fair. I think I actually bought it and was
 amazed by what it could do. I had made several attempts over the years to replicate it, but only got so far. I decided to make another 
 attempt using RoR. I still remember typing in a command, listening the disk spin and grind and spit out the information. I can't find 
 much on it on the web, but found this 
 <a href="http://www.moofgroup.com/moof/Roby_Sherman/Adventures_in_Silicon/Entries/2006/12/27_Wow!_Howd_All_That_Stuff_Get_In_There.html">
 link</a> that display what the command line interaction looked like. This was 1978 and we were still in COBOL index sequential days. Relational databases only
 lived on DEC equipment and not very prevalent. I know all the disk crunching and grinding was some custom indexing, but being build in basic (maybe some assembler) on and Apple II or CPM system, was impressive.
-</p>
+
+
 
 It was just one of many "Index Card" type applications of the time. It was meant for you to store your important information if it conformed to a Subject, Tag, Value type system. It was really a dynamic hash:
 
@@ -20,10 +21,11 @@ It was just one of many "Index Card" type applications of the time. It was meant
     
 It was not meant as a group database, but just someplace to put your stuff. WhatIsIt is not different.
 
-<p>I was going to attempt the command line interaction using AJAX and javascript, but chickened out. What I came up with is close. The submit button is
+I was going to attempt the command line interaction using AJAX and javascript, but chickened out. What I came up with is close. The submit button is
 grayed out, but usable (or just use the Return key in the search field). 
 I added radio buttons instead of a text box for the Yes/No inputs..
-</p>
+
+
 
 ### Interface!
 
@@ -36,23 +38,24 @@ WhatIsIt?
 <input class="dim" name="commit" type="submit" value="WhatIsIt?" />
 </fieldset>
 
-<p>There are only few commands: What's, Who's, New's and Forget's. Forget's is the only one required, it can figure out what you meant without the command!
+There are only few commands: What's, Who's, New's and Forget's. Forget's is the only one required, it can figure out what you meant without the command!
 The database has three
 models: Subject->Tag<-Value (S/T/V). Subject and Tab attribute name must not contain spaces, use underscores. Value is wide open. The Subject name is forced to unique.
 I took some liberty with the commands:
 
-* What's Steve's Phone's is the same as Steve's Phone's or just drop the 's and use Steve phone. 
-* Who's dumps a Subject, but just typing the subject name will do the same
-* You can add a new relation by simple typing three or more words: Steve Phone Home::256-467-4348
-* The double colon allows you to add more information to the value. If you modify the Value, you can actually add other attributes
-* Typing three words that match S/T/V will allow you to change the Value
-* Typing two words that match S/T and a third word that does not match V, will allow to append a new Value using the same Tag
-* All searches use ILIKE with a '%' wild card. StE% will find Steve. Classic wild cards: word% = starts with, %word% = contains, %word = ends with
-* Typing one word will look for that name in all models.
-* Typing two words will first look for Subject/Tag and if not found will look at all the relations: Phone Home will find anyones home phone.
+  * What's Steve's Phone's is the same as Steve's Phone's or just drop the 's and use Steve phone. 
+  * Who's dumps a Subject, but just typing the subject name will do the same
+  * You can add a new relation by simple typing three or more words: Steve Phone Home::256-467-4348
+  * The double colon allows you to add more information to the value. If you modify the Value, you can actually add other attributes
+  * Typing three words that match S/T/V will allow you to change the Value
+  * Typing two words that match S/T and a third word that does not match V, will allow to append a new Value using the same Tag
+  * All searches use ILIKE with a '%' wild card. StE% will find Steve. Classic wild cards: word% = starts with, %word% = contains, %word = ends with
+  * Typing one word will look for that name in all models.
+  * Typing two words will first look for Subject/Tag and if not found will look at all the relations: Phone Home will find anyones home phone.
 
 Steve Wanda% will find Steve's mother if Mother is the tag that links Steve to Wanda P Hrobak 
-</p> 
+
+ 
 
 ### This was just an experiment to do some stuff in a non-CRUD database.  The three models header infomration:
 
