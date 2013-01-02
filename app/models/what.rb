@@ -19,7 +19,6 @@ class What
     # the things we can do in query
     query = true #value.blank?
     append_value = append_tag = false
-    #assign = !value.blank?
     relate = command == 'relate'
     forget = command == 'forget'
     change = command == 'change'
@@ -98,8 +97,8 @@ class What
   #   end
   # end
   def array_to_ilike(col_name,keys)
-    keys = keys.class == Array ? keys : keys.match(/\[([^\]]+)\]/)[1].split(',')
     ilike = [keys.map {|i| "#{col_name} ILiKE ? "}.join(" OR "), *keys ]
+    #ilike = [keys.size.times.map{"#{col_name} ILIKE ?"}.join(' OR '), *keys ]
    end  
   
   
@@ -196,13 +195,9 @@ class What
     v_ilike = @tuple[:value][:ilike] ||= ['values.name ilike ?',value]
     t_ilike = @tuple[:tag][:ilike] ||= ['tags.name ilike ?',tag]
     s_ilike = @tuple[:subject][:ilike] ||= ['subjects.name ilike ?',tag]
-    # v = Value.where('values.name ilike ?',value).joins(:subjects) 
-    # v = v.joins(:subjects).where('subjects.name ilike ?',subject)
-    # v = v.joins(:tags).where('tags.name ilike ?',tag)
     v = Value.where(v_ilike).joins(:subjects) 
     v = v.joins(:subjects).where(s_ilike)
     v = v.joins(:tags).where(t_ilike)
-    
     if v.count < 2
       hash = value_hash(v)
     else
@@ -212,7 +207,6 @@ class What
   
   def who_s_tag(name, tag)
     s_ilike = @tuple[:subject][:ilike] ||= ['subjects.name ilike ?',name]
-    
     relations = []
     if @tuple[:tag][:ilike]
       tags = Tag.joins(:subject).where(s_ilike).where(@tuple[:tag][:ilike]) #"subjects.name ilike ?", name
@@ -227,7 +221,6 @@ class What
     else
       result = {:relations => tuple_relations(name,tag)}
     end
-    #puts "RTRTRTRTRT #{tags.inspect} kjkjkjkj #{relations.inspect}"
     return result
   end
   
@@ -370,9 +363,6 @@ class What
     hash = value.as_json(:except => [:created_at, :updated_at ],
       :include => {:subject =>  {:except => [:created_at, :updated_at ]}, 
       :tags =>  {:except => [:created_at, :updated_at ]}})
-    # subject = value.subject
-    # hash = value.as_json(:except => [:created_at, :updated_at ],
-    #   :include => {:tags =>  {:except => [:created_at, :updated_at ]}}).merge({:subject =>subject.as_json(:except => [:created_at, :updated_at ])})    
     if wrap
       result = {:value => hash}
     else
