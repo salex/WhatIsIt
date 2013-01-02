@@ -39,8 +39,8 @@ WhatIsIt?
 </fieldset>
 
 There are only few commands: What's, Who's, New's and Forget's. Forget's is the only one required, it can figure out what you meant without the command!
-The database has three
-models: Subject->Tag<-Value (S/T/V). Subject and Tab attribute name must not contain spaces, use underscores. Value is wide open. The Subject name is forced to unique.
+The database has three models: `Subject->Tag<-Value (S/T/V). `
+Subject and Tab attribute name must not contain spaces, use underscores. Value is wide open. The Subject name is forced to unique.
 I took some liberty with the commands:
 
   * What's Steve's Phone's is the same as Steve's Phone's or just drop the 's and use Steve phone. 
