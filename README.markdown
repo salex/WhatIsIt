@@ -40,16 +40,18 @@ WhatIsIt?
 The database has three
 models: Subject->Tag<-Value (S/T/V). Subject and Tab attribute name must not contain spaces, use underscores. Value is wide open. The Subject name is forced to unique.
 I took some liberty with the commands:
-* What's Steve's Phone's is the same as Steve's Phone's or just drop the 's and use Steve phone.</li> 
-* Who's dumps a Subject, but just typing the subject name will do the same</li>
-* You can add a new relation by simple typing three or more words: Steve Phone Home::256-467-4348</li>
-* The double colon allows you to add more information to the value. If you modify the Value, you can actually add other attributes</li>
-* Typing three words that match S/T/V will allow you to change the Value</li>
-* Typing two words that match S/T and a third word that does not match V, will allow to append a new Value using the same Tag</li>
-* All searches use ILIKE with a '%' wild card. StE% will find Steve. Classic wild cards: word% = starts with, %word% = contains, %word = ends with</li>
-* Typing one word will look for that name in all models.</li>
+
+* What's Steve's Phone's is the same as Steve's Phone's or just drop the 's and use Steve phone. 
+* Who's dumps a Subject, but just typing the subject name will do the same
+* You can add a new relation by simple typing three or more words: Steve Phone Home::256-467-4348
+* The double colon allows you to add more information to the value. If you modify the Value, you can actually add other attributes
+* Typing three words that match S/T/V will allow you to change the Value
+* Typing two words that match S/T and a third word that does not match V, will allow to append a new Value using the same Tag
+* All searches use ILIKE with a '%' wild card. StE% will find Steve. Classic wild cards: word% = starts with, %word% = contains, %word = ends with
+* Typing one word will look for that name in all models.
 * Typing two words will first look for Subject/Tag and if not found will look at all the relations: Phone Home will find anyones home phone.
-Steve Wanda% will find Steve's mother if Mother is the tag that links Steve to Wanda P Hrobak </li>
+
+Steve Wanda% will find Steve's mother if Mother is the tag that links Steve to Wanda P Hrobak 
 </p> 
 
 ### This was just an experiment to do some stuff in a non-CRUD database.  The three models header infomration:
