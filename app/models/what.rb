@@ -42,27 +42,27 @@ class What
     elsif change
       results = get_action_results("edit")
     elsif append_value
-      results = {action: 'edit', what: "append_value", query: str, target: target, subject: subject, tag: tag, value: value, info: info, tag_id: @tuple[:tag][:id]}
+      results = {action: 'edit', what: "append_value", tag_id: @tuple[:tag][:id]}.merge(get_instance_attr)
     elsif append_tag
-      results = {action: 'edit', what: "new_tag_and_value", query: str, target: target, subject: subject, tag: tag, value: value, info: info, :subject_id => @tuple[:subject][:id]}
+      results = {action: 'edit', what: "new_tag_and_value", :subject_id => @tuple[:subject][:id]}.merge(get_instance_attr)
     elsif assign
       results = assign_action
-    elsif query  && (command == 'who') && (target == 'subject') #&& !subject.blank?
-      results = {action: "display_who", query: str, hash: who_s(subject)}# who is a subject dump
+    elsif query  && (command == 'who') && (target == 'subject') 
+      results = {action: "display_who", hash: who_s(subject)}.merge(get_instance_attr)# who is a subject dump
       
-    elsif query && (target == 'value') # !subject.blank? && !tag.blank?
-      results =  {action: "display_value", query: str, hash: who_s_value(subject,tag,value)} # query all attributes for a subject.tag
+    elsif query && (target == 'value') 
+      results =  {action: "display_value",  hash: who_s_value(subject,tag,value)}.merge(get_instance_attr) # query all attributes for a subject.tag
    
-    elsif query && (target == 'tag') # !subject.blank? && !tag.blank?
-      results =  {action: "display_tag", query: str, hash: who_s_tag(subject,tag)} # query all attributes for a subject.tag
+    elsif query && (target == 'tag') 
+      results =  {action: "display_tag",  hash: who_s_tag(subject,tag)}.merge(get_instance_attr) # query all attributes for a subject.tag
       
       
     elsif query && (target == 'subject') #!subject.blank? 
       
-      results = {action: "display_objects", query: str, hash: object_s(subject)} # query all attributes by type
+      results = {action: "display_objects",  hash: object_s(subject)}.merge(get_instance_attr) # query all attributes by type
       
     else
-      results = { :debug => {message: "What::Unknown query action",query: str, target: target, subject: subject, tag: tag, value: value, info: info, command: command}}
+      results = { :debug => {message: "What::Unknown query action", command: command}.merge(get_instance_attr)}
     end
     results
   end
@@ -76,8 +76,9 @@ class What
     tuple0_exists = tuple0[:subject][:has] && tuple0[:tag][:has] && tuple0[:value][:has]
     tuple1_exists = tuple1[:subject][:has] && tuple1[:tag][:has] && tuple1[:value][:has]
     return {error: {message: "Relation already exists: #{@str}"}} if tuple1_exists && tuple0_exists
-    relations = [{subject: @subject, tag: tags[0], value: @value, tuple: tuple0}, {subject: @value, tag: tags[1], value: @subject},tuple: tuple1]
-    response = { :debug => {message: "test relate", command: 'relate', relations: relations }.merge(get_instance_attr)}
+    relations = [{subject: @subject, tag: tags[0], value: @value, tuple: tuple0}, {subject: @value, tag: tags[1], value: @subject,tuple: tuple1}]
+    #response = { :debug => {message: "test relate", command: 'relate', relations: relations }.merge(get_instance_attr)}
+    response = { :action => 'relate', :what => "",  relations: relations}.merge(get_instance_attr)
     puts "RESPONSE  #{response.inspect}"
     return response
   end
@@ -382,11 +383,33 @@ class What
     return {:subject => sh}
   end
     
-  # def new_tuple
-  #   return Subject.new_tuple(response['subject'],response['tag'],response['value'],response['info'])
-  # end
 
 # MODEL METHODS
+  def new_tuple
+    return Subject.new_tuple(response['subject'],response['tag'],response['value'],response['info'])
+  end
+
+  def new_relation
+    relations = response['relations']
+    results = []
+    relations.each do |r|
+      t = r['tuple']
+      unless t['subject']['has']
+        result = Subject.new_tuple(r['subject'], r['tag'],r['value'])
+      else
+        subject = Subject.find(t['subject']['id'])
+        unless t['tag']['has']
+          result = subject.new_tag_and_value(r['tag'],r['value'])
+        else
+          tag = Tag.find(t['tag']['id'].first)
+          result = tag.append_value(r['value'])
+        end
+      end
+      results += result
+    end
+    return results[0] && results[1], { :message => "Tried stuffing, indexing, green good, red bad"}
+  end
+    
   def new_tag_and_value
     subject = Subject.find(response['subject_id'])
     if subject.nil?
@@ -451,6 +474,7 @@ class What
   
   def get_subject_tag_value(qstr)
     # get the attributes
+    subject = tag = value = target = 
     dots = qstr.scan(/\w\.\w/)
     if dots.empty?
       words = qstr.split

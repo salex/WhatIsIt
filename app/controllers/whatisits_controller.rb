@@ -115,39 +115,51 @@ class WhatisitsController < ApplicationController
     @what.response = JSON.parse params[:response]
     result = "none"
     message = nil
-    case params['edit'].keys[0]
-      when 'new_tuple'
-        if params[:edit]['new_tuple'] == 'true'
-          results, message  = @what.new_tuple
-        else
-          message = 'Okay, no new subject, tag and value. ' 
-        end
+    result = false
+    if params[:edit]
+      case params[:edit].keys[0]
+        when 'new_tuple'
+          if params[:edit]['new_tuple'] == 'true'
+            results, message  = @what.new_tuple
+          else
+            message = 'Okay, no new subject, tag and value. ' 
+          end
       
-      when 'new_tag_and_value'
-        if params[:edit]['new_tag_and_value'] == 'true'
-          results, message  = @what.new_tag_and_value
-        else
-          message = 'Okay, no new tag and value. ' 
-        end
-      when 'change_value'
-        if params[:edit]['change_value'] == 'true'
-          results, message  = @what.change_value(params[:edited])
-        else
-          message = 'Okay, no new value. ' 
-        end
+        when 'new_tag_and_value'
+          if params[:edit]['new_tag_and_value'] == 'true'
+            results, message  = @what.new_tag_and_value
+          else
+            message = 'Okay, no new tag and value. ' 
+          end
+        when 'change_value'
+          if params[:edit]['change_value'] == 'true'
+            results, message  = @what.change_value(params[:edited])
+          else
+            message = 'Okay, no new value. ' 
+          end
       
   
-      when 'append_value'
-        if params[:edit]['append_value'] == 'true'
-          results, message  = @what.append_value
-        else
-          message = 'Okay, no new value. ' 
-        end
-      else        
-        message = 'Whoops in append_value. ' 
-    end
-    if message.class == Hash
-      message = message[:message]
+        when 'append_value'
+          if params[:edit]['append_value'] == 'true'
+            results, message  = @what.append_value
+          else
+            message = 'Okay, no new value. ' 
+          end
+        when 'relate'
+          if params[:edit]['relate'] == 'true'
+            results, message  = @what.new_relation
+          else
+            message = 'Okay, no new relation. ' 
+          end
+          
+        else        
+          message = 'Whoops in update. ' 
+      end
+      if message.class == Hash
+        message = message[:message]
+      end
+    else
+      message = "I assume you meant No since you didn't select Yes or No!"
     end
     if results
       redirect_to root_path, :notice => message

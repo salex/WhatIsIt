@@ -5,7 +5,7 @@ class Tag < ActiveRecord::Base
   
   attr_accessible :name, :subject_id, :value_id
 
-  def append_value(value,info)
+  def append_value(value,info="")
     new_tag = self.dup
     value = Value.create!(name: value, info: info)
     new_tag.value = value

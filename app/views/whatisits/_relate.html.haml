@@ -1,0 +1,30 @@
+= @what.response.inspect
+- rel = @what.response[:relations]
+%h5= "Whoa! you want me to relate #{@what.str}. Add stuff as needed?"
+= form_tag  whatisits_path, :method => :put do
+  = hidden_field_tag :response, @what.response.to_json
+  /{:action=>"relate", :what=>"", :relations=>[{:subject=>"joe", :tag=>"mother", :value=>"rose", :tuple=>{:subject=>{:has=>false, :id=>nil}, :tag=>{:has=>false, :id=>nil}, :value=>{:has=>false, :id=>nil}}}, {:subject=>"rose", :tag=>"son", :value=>"joe"}, {:tuple=>{:subject=>{:has=>false, :id=>nil}, :tag=>{:has=>false, :id=>nil}, :value=>{:has=>false, :id=>nil}}}], :subject=>"joe", :tag=>"mother:son", :value=>"rose", :info=>"", :target=>"value", :str=>"joe.mother:son.rose"}
+  .f-left.boxed
+    %ul
+      %li="Subject: #{rel[0][:subject]}'s #{checkmark(rel[0][:tuple][:subject][:has])}".html_safe
+      %li="New Tag: #{rel[0][:tag]} #{checkmark(rel[0][:tuple][:tag][:has])}".html_safe
+      %li="New Value: #{rel[0][:value]} #{checkmark(rel[0][:tuple][:value][:has])}".html_safe
+      %li="New Info: #{rel[0][:info]}"
+  .f-left.boxed
+    %ul
+      %li="Subject: #{rel[1][:subject]}'s #{checkmark(rel[1][:tuple][:subject][:has])}".html_safe
+      %li="New Tag: #{rel[1][:tag]} #{checkmark(rel[1][:tuple][:tag][:has])}".html_safe
+      %li="New Value: #{rel[1][:value]} #{checkmark(rel[1][:tuple][:value][:has])}".html_safe
+      %li="New Info: #{rel[1][:info]}"
+  .f-clear
+  %p 
+    Relate and create/append as needed? 
+    
+    %span.boxed
+      Yes
+      = radio_button_tag('edit[relate]', true)
+    %span.boxed
+      No
+      =radio_button_tag('edit[relate]', false)
+    = submit_tag "Add Stuff?", :class => 'dim'
+  

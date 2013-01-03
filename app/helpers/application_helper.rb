@@ -11,4 +11,14 @@ module ApplicationHelper
     end
     return info
   end
+  
+  def checkmark(check)
+    if check
+      return "&#10003;"
+    else
+      return ''
+      
+    end
+  end
+  
 end

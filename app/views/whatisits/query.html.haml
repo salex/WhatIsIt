@@ -1,6 +1,6 @@
 - flash.each do |name, msg| 
   = content_tag :div, msg.html_safe, class: "#{name}"
-
+=# @what.inspect
 %fieldset
 
   = link_to "Home", root_path
@@ -8,7 +8,7 @@
   %h5 
     WhatIsIt?
   = form_tag  query_whatisits_path, :method => :put do
-    = search_field_tag :query, @what.response[:query],:size => 50, :autofocus => true
+    = search_field_tag :query, @what.str,:size => 50, :autofocus => true
     = submit_tag "WhatIsIt?", :class => 'dim'
 
 <hr />   
