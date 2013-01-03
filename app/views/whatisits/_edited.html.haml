@@ -13,6 +13,12 @@
         %li="Old Value: #{value['name']}"
         %li="Old Info: #{value['info']}"
       .boxed
+        %i
+          You can store 0, 1 or many items in the info field.(not cleaned up yet)
+          %ul
+            %li Entering word:value on each line will add a key value pair
+            %li Entering a single word on each line will do the same if there are an even number of lines.
+            %li Entering an odd number of lines will give each value a sequential info1..infoN key 
         %table.boxed
           %tr
             %td New Value:

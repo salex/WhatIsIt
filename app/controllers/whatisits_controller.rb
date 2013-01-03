@@ -1,9 +1,9 @@
 class WhatisitsController < ApplicationController
 
   def index  
-    @subjects = Subject.pluck(:name)  
-    @tags = Tag.uniq(:name).pluck(:name)  
-    @values = Value.uniq(:name).pluck(:name)  
+    @subjects = Subject.order(:name).pluck(:name)  
+    @tags = Tag.order(:name).uniq(:name).pluck(:name)  
+    @values = Value.order(:name).uniq(:name).pluck(:name)  
   end
   
   def query
@@ -25,8 +25,14 @@ class WhatisitsController < ApplicationController
   
   def forget
     resources = (params[:id].capitalize.constantize).find(params[:delete][:id])
+    puts "DELETE ALL  #{resources.inspect}"
+    if resources.class == Array
+      result = resources.each(&:destroy)
+    else
+      result = resources.destroy
+    end
     respond_to do |format|
-      if resources.destroy
+      if result
         format.html {redirect_to root_path, :notice => "Selected #{params[:id]} and any associations deleted."}
       else
         format.html {redirect_to root_path, :alert => "Whoa's if me. Deleting #{params[:id]} and any associations FAILED."}

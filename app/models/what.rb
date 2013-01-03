@@ -1,5 +1,5 @@
 class What
-  attr_accessor :subject, :tag, :value, :info, :response, :target
+  attr_accessor :subject, :tag, :value, :info, :response, :target, :str
   def initialize(attributes = {})
     @tuple = reset_tuple
      
@@ -12,14 +12,15 @@ class What
   
 
   def query(str)
+    self.str = str
     command, qstr = get_command_and_query(str) # sets command if there and remove it from input str
     return {'error' => "Whoa! You didn't ask a question."} if qstr.blank?
     info = get_info(qstr) # gets info from qstr
     subject,tag,value,target = get_subject_tag_value(qstr) # get the possible attributes from qstr
-    # the things we can do in query
-    query = true #value.blank?
+  # the things we can do in query
+    query = true 
     append_value = append_tag = false
-    relate = command == 'relate'
+    relate =  tag.include?(':')
     forget = command == 'forget'
     change = command == 'change'
     assign = (command == 'new') && !value.blank?
@@ -32,29 +33,20 @@ class What
       assign = !@tuple[:subject][:has] && !tag.blank? && !value.blank? && @tuple[:subject][:ilike].nil?
     end
     
-    puts "QQQQQuuuuuEEEEEERRRRRRyyyy cmd #{command} q #{query} v #{value} t #{target} av #{append_value} at #{append_tag} as #{assign}"
-    # figure out what to query and what to return
+    puts "QQQQQuuuuuEEEEEERRRRRRyyyy cmd #{command} q #{query} t #{tag} t #{target} r #{relate} av #{append_value} at #{append_tag} as #{assign}"
+  # figure out what to query and what to return
     if forget
-      results =  change(subject, tag, value, target) # set up for creating stuff
-      results[:action] = "forget"
-      results[:query] = str
-      
+      results = get_action_results("forget")
     elsif relate
-       results = { :debug => {message: "test relate",query: str, target: target, 
-         subject: subject, tag: tag, value: value, info: info, command: command,result: array_to_ilike('tags.name',tag)} }
+      results = relate_action
     elsif change
-      results =  change(subject, tag, value, target) # set up for creating stuff
-      results[:query] = str
+      results = get_action_results("edit")
     elsif append_value
       results = {action: 'edit', what: "append_value", query: str, target: target, subject: subject, tag: tag, value: value, info: info, tag_id: @tuple[:tag][:id]}
     elsif append_tag
       results = {action: 'edit', what: "new_tag_and_value", query: str, target: target, subject: subject, tag: tag, value: value, info: info, :subject_id => @tuple[:subject][:id]}
     elsif assign
-      if @tuple[:subject][:has] #TODO this was trapped by append tag, and should not happend, but not message new's on existing subject
-        results = {:error => {:message => "Whoa's is me. You tried to add a duplicate subject #{subject}"}}
-      else
-        results = {action: 'edit', what: "new_tuple", query: str, target: target, subject: subject, tag: tag, value: value, info: info}
-      end
+      results = assign_action
     elsif query  && (command == 'who') && (target == 'subject') #&& !subject.blank?
       results = {action: "display_who", query: str, hash: who_s(subject)}# who is a subject dump
       
@@ -67,7 +59,7 @@ class What
       
     elsif query && (target == 'subject') #!subject.blank? 
       
-      results = {action: "display_objects", query: str, hash: subject_s(subject)} # query all attributes by type
+      results = {action: "display_objects", query: str, hash: object_s(subject)} # query all attributes by type
       
     else
       results = { :debug => {message: "What::Unknown query action",query: str, target: target, subject: subject, tag: tag, value: value, info: info, command: command}}
@@ -75,27 +67,60 @@ class What
     results
   end
   
-  # def assignment(subject, tag, value, info, str)
-  #   subject_o = tag_o = value_o = nil
-  #   subject_o = Subject.where("name ilike ?", subject).first
-  #   tag_o = subject_o.tags.where("tags.name ilike ?", tag).first unless subject_o.nil?
-  #   value_o = subject_o.values.where("values.name ilike ?", value).first unless subject_o.nil? && tag_o.nil?
-  #   if subject_o.nil?
-  #     return {action: 'edit', what: "new_tuple", query: str, target: target, subject: subject, tag: tag, value: value, info: info}
-  #   elsif tag_o.nil?
-  #     return {action: 'edit', what: "new_tag_and_value", query: str, target: target, subject: subject, tag: tag, value: value, info: info, :subject_id => subject_o.id}
-  #   elsif !value_o.nil?
-  #     if value_o.name.casecmp(value) == 0
-  #       return {action: 'edit', what: "change_value", query: str, target: target, subject: subject, tag: tag, value: value, info: info, value_id: value_o.id}
-  #     else
-  #       return {'error' => "Whoa! I have a problem in assignment."} 
-  #     end
-  #   else
-  #     return {action: 'edit', what: "append_value", query: str, target: target, subject: subject, tag: tag, value: value, info: info, tag_id: tag_o.id}
-  #     #return {'error' => "Whoa! I have a problem in assignment."} 
-  #     
-  #   end
-  # end
+  # ACTION METHODS
+  def relate_action
+    tags = @tag.split(':')
+    return {error: {message: "Invalid relation: #{@tag}"}} if tags.size != 2
+    tuple0 = get_tuple(@subject,tags[0],@value,'value')
+    tuple1 = get_tuple(@value,tags[1],@subject,'value')
+    tuple0_exists = tuple0[:subject][:has] && tuple0[:tag][:has] && tuple0[:value][:has]
+    tuple1_exists = tuple1[:subject][:has] && tuple1[:tag][:has] && tuple1[:value][:has]
+    return {error: {message: "Relation already exists: #{@str}"}} if tuple1_exists && tuple0_exists
+    relations = [{subject: @subject, tag: tags[0], value: @value, tuple: tuple0}, {subject: @value, tag: tags[1], value: @subject},tuple: tuple1]
+    response = { :debug => {message: "test relate", command: 'relate', relations: relations }.merge(get_instance_attr)}
+    puts "RESPONSE  #{response.inspect}"
+    return response
+  end
+  
+  def assign_action
+    if @tuple[:subject][:has] # used new's with existing subject
+      results = {:error => {:message => "Whoa's is me. You tried to add a duplicate subject #{subject}"}}
+    else
+      results = {action: 'edit', what: "new_tuple"}.merge(get_instance_attr)
+    end
+  end
+  
+  def get_action_results(action)  
+    subject_o = tag_o = value_o = nil
+    subject_o = Subject.find(@tuple[:subject][:id])
+    
+    if @target == 'subject' && !subject_o.nil?
+      tags = subject_o.tags.select(:name).uniq.pluck('tags.name')
+      values = subject_o.values.select('values.name').uniq.pluck('values.name')
+      return  get_instance_attr.merge({action: action, what: @target, subject_id: subject_o.id, id: subject_o.id, tags: tags, values: values})
+    end
+    tag_o = Tag.where(id: @tuple[:tag][:id])
+    
+    if @target == 'tag' && !tag_o.empty?
+      tags = tag_o.select(:name).uniq.pluck('tags.name')
+      values = Value.where(:id => @tuple[:tag][:id]).pluck('values.name')
+      return  get_instance_attr.merge({action: action, what: @target, tag_id: @tuple[:tag][:id], tags: tags, values: values})
+    end
+    value_o = Value.where(id: @tuple[:value][:id])
+    vids = value_o.pluck('values.id')
+    
+    if target == 'value' && !value_o.empty?
+      return get_instance_attr.merge({action: action, what: @target,  value_id: vids ,values: value_o.pluck('values.name')})
+    else
+      return get_instance_attr.merge({action: 'error', what: "tuple not found"})
+    end
+  end
+  
+  def get_instance_attr
+    return { subject: @subject, tag: @tag, value: @value, :info => @info, target: @target, str: @str}
+  end
+
+# HELPER METHODS  
   def array_to_ilike(col_name,keys)
     ilike = [keys.map {|i| "#{col_name} ILiKE ? "}.join(" OR "), *keys ]
     #ilike = [keys.size.times.map{"#{col_name} ILIKE ?"}.join(' OR '), *keys ]
@@ -103,7 +128,7 @@ class What
   
   
   def get_tuple(subject,tag,value,target)
-    reset_tuple
+    @tuple = reset_tuple
     if subject.include?("|")
       keys = subject.split("|")
       @tuple[:subject][:ilike] = array_to_ilike('subjects.name',keys)
@@ -117,55 +142,33 @@ class What
       @tuple[:value][:ilike] = array_to_ilike('values.name',keys)
     end
     subject_o = Subject.where("name ilike ?", subject).first
-    return if subject_o.nil?
+    return @tuple if subject_o.nil?
     
         
     @tuple[:subject][:has] = true
     @tuple[:subject][:id] = subject_o.id
-    return  if target == 'subject'
+    @tuple[:subject][:name] = subject_o.name
+    return @tuple if target == 'subject'
         
     tag_o = subject_o.tags.where("tags.name ilike ?", tag)
-    return if tag_o.empty?
+    return @tuple if tag_o.empty?
     
     @tuple[:tag][:has] = true
     @tuple[:tag][:id] = tag_o.pluck('tags.id')
-    return if target == 'tag'
+    @tuple[:tag][:name] = tag
+    return @tuple if target == 'tag'
     
-    value_o = subject_o.values.where("values.name ilike ?", value).where(:id => @tuple[:tag][:id])
-    return if value_o.empty?
+    value_o = subject_o.values.where("values.name ilike ?", value).where(:id => @tuple[:tag][:id])    
+    return @tuple if value_o.empty?
     
     @tuple[:value][:has] = true
-    @tuple[:value][:id] = value_o.pluck('values.id')    
-  end
-  
-  def change(subject,tag, value,target)
-    subject_o = tag_o = value_o = nil
-    subject_o = Subject.where("name ilike ?", subject).first
-    if target == 'subject' && !subject_o.nil?
-      tags = subject_o.tags
-      values = subject_o.values
-      return {action: 'edit', what: "change_subject",  target: target, subject: subject, tag: tag, value: value, 
-        subject_id: subject_o.id, id: subject_o.id, tags: tags.select(:name).uniq.pluck('tags.name'), values: values.select('values.name').uniq.pluck('values.name')}
-    end
-    tag_o = subject_o.tags.where("tags.name ilike ?", tag)
-    ids = tag_o.pluck('tags.id')
-    if target == 'tag' && !tag_o.empty?
-      values = subject_o.values.where(:id => ids)
-      return {action: 'edit', what: "change_tag",  target: target, subject: subject, tag: tag, value: value, 
-        tag_id: ids,  tags: tag_o.select(:name).uniq.pluck('tags.name'), values: values.pluck('values.name')}
-    end
-    value_o = subject_o.values.where("values.name ilike ?", value).where(:id => ids)
-    ids = value_o.pluck('values.id')
-    if target == 'value' && !value_o.empty?
-      return {action: 'edit', what: "change_value",  target: target, subject: subject, tag: tag, value: value, value_id: ids,values: value_o.pluck('values.name')}
-      
-    else
-      return {action: 'error', what: "tuple not found",  target: target, subject: subject, tag: tag, value: value, tag_id: nil}
-    end
+    @tuple[:value][:id] = value_o.pluck('values.id')   
+    @tuple[:value][:name] = value 
+    return @tuple
   end
     
-  
-  def subject_s(name)
+  def object_s(name)
+    # What's object
     if name.include?("|")
       v_ilike = array_to_ilike('values.name',name.split("|"))
       s_ilike = array_to_ilike('subjects.name',name.split("|"))
@@ -186,26 +189,13 @@ class What
   end
   
   def who_s(name)
-    
+    # Who's Subject's
     who = Subject.includes([:tags, :values]).where("name ilike ?", name)
     hash = subject_hash(who)
   end
 
-  def who_s_value(subject,tag,value)
-    v_ilike = @tuple[:value][:ilike] ||= ['values.name ilike ?',value]
-    t_ilike = @tuple[:tag][:ilike] ||= ['tags.name ilike ?',tag]
-    s_ilike = @tuple[:subject][:ilike] ||= ['subjects.name ilike ?',tag]
-    v = Value.where(v_ilike).joins(:subjects) 
-    v = v.joins(:subjects).where(s_ilike)
-    v = v.joins(:tags).where(t_ilike)
-    if v.count < 2
-      hash = value_hash(v)
-    else
-      hash = values_hash(v)
-    end
-  end
-  
   def who_s_tag(name, tag)
+    # What's Subject's Tag's
     s_ilike = @tuple[:subject][:ilike] ||= ['subjects.name ilike ?',name]
     relations = []
     if @tuple[:tag][:ilike]
@@ -223,7 +213,22 @@ class What
     end
     return result
   end
-  
+
+  def who_s_value(subject,tag,value)
+    # What's Subject's Tag's Value
+    v_ilike = @tuple[:value][:ilike] ||= ['values.name ilike ?',value]
+    t_ilike = @tuple[:tag][:ilike] ||= ['tags.name ilike ?',tag]
+    s_ilike = @tuple[:subject][:ilike] ||= ['subjects.name ilike ?',subject]
+    v = Value.where(v_ilike).joins(:subjects) 
+    v = v.joins(:subjects).where(s_ilike)
+    v = v.joins(:tags).where(t_ilike)
+    if v.count < 2
+      hash = value_hash(v)
+    else
+      hash = values_hash(v)
+    end
+  end
+    
   def tuple_relations(name1,name2)
     # Always wanted to use the name tuple, but it is more of a set (unordered)
     # Find a set of records in model1 that are related to a set of records in model2
@@ -256,17 +261,12 @@ class What
     
     
     sets = [] # an array of relations
-    # sets += Value.where("values.name ilike ?", name2).joins(:subjects).where("subjects.name ilike ?", name1)
-    # sets += Value.where("values.name ilike ?", name1).joins(:subjects).where("subjects.name ilike ?", name2)
-    #   # Tries both Value.Subject and Subject.Value ex JanL.JamesV and/or JamesV.JanL
-    # sets += Tag.where("tags.name ilike ?", name1).joins(:value).where("values.name ilike ?", name2)
-    # sets += Tag.where("tags.name ilike ?", name2).joins(:value).where("values.name ilike ?", name1)
-      # Tries Value.Tag and Tag.Value ex Son.JamesV and/or JamesV.Son
-    sets += Value.where(v_ilike1).joins(:subjects).where(s_ilike2)
-    sets += Value.where(v_ilike2).joins(:subjects).where(s_ilike1)
-      # Tries both Value.Subject and Subject.Value ex JanL.JamesV and/or JamesV.JanL
-    sets += Tag.where(t_ilike1).joins(:value).where(v_ilike2)
-    sets += Tag.where(t_ilike2).joins(:value).where(v_ilike1)
+    # Tries both Value.Subject and Subject.Value ex JanL.JamesV and/or JamesV.JanL
+      sets += Value.where(v_ilike1).joins(:subjects).where(s_ilike2)
+      sets += Value.where(v_ilike2).joins(:subjects).where(s_ilike1)
+    # Tries both Value.Subject and Subject.Value ex JanL.JamesV and/or JamesV.JanL
+      sets += Tag.where(t_ilike1).joins(:value).where(v_ilike2)
+      sets += Tag.where(t_ilike2).joins(:value).where(v_ilike1)
     
     rel = [] # an array of array of hashes created by model.as_json from the not empty sets
     sets.each do |m|
@@ -283,7 +283,7 @@ class What
     return rel
   end
   
-  
+# HASH METHODS
   def subject_hash(subject,wrap=true)
     hash = subject.as_json(:except => [:created_at, :updated_at ], 
       :include => {:tags => {:except => [:created_at, :updated_at ], :methods => :values,
@@ -295,7 +295,7 @@ class What
     end
   end
   
-  # TODO Can't have multiple subjects, get rid of this if a use not found
+  # TODO Can't have multiple subjects?, get rid of this if a use not found
   def subjects_hash(subjects,wrap=true) 
     relations = []
     subjects.each do |subject|
@@ -335,6 +335,29 @@ class What
     end
   end
   
+  def value_hash(value,wrap=true)
+    hash = value.as_json(:except => [:created_at, :updated_at ],
+      :include => {:subject =>  {:except => [:created_at, :updated_at ]}, 
+      :tags =>  {:except => [:created_at, :updated_at ]}})
+    if wrap
+      result = {:value => hash}
+    else
+      result = hash
+    end
+  end
+  
+  def values_hash(values,wrap=true)
+    relations = []
+    values.each do |value|
+      relations << value_hash(value,false)
+    end
+    if wrap
+      result = {:values => relations}
+    else
+      result = relations
+    end
+  end
+  
   def tuple
     return @tuple
   end
@@ -358,34 +381,12 @@ class What
     sh[:values] = vh
     return {:subject => sh}
   end
-  
-  def value_hash(value,wrap=true)
-    hash = value.as_json(:except => [:created_at, :updated_at ],
-      :include => {:subject =>  {:except => [:created_at, :updated_at ]}, 
-      :tags =>  {:except => [:created_at, :updated_at ]}})
-    if wrap
-      result = {:value => hash}
-    else
-      result = hash
-    end
-  end
-  
-  def values_hash(values,wrap=true)
-    relations = []
-    values.each do |value|
-      relations << value_hash(value,false)
-    end
-    if wrap
-      result = {:values => relations}
-    else
-      result = relations
-    end
-  end
     
-  def new_tuple
-    return Subject.new_tuple(response['subject'],response['tag'],response['value'],response['info'])
-  end
-  
+  # def new_tuple
+  #   return Subject.new_tuple(response['subject'],response['tag'],response['value'],response['info'])
+  # end
+
+# MODEL METHODS
   def new_tag_and_value
     subject = Subject.find(response['subject_id'])
     if subject.nil?
@@ -435,12 +436,6 @@ class What
   end
   
   def get_info(qstr)
-    # Get the optional info attribute in the value portion
-    # info is converted to a hash on saving Value
-    # Formats:
-    # => ::attr => {"info" => attr}
-    # => ::attr::value[.. ::attr::value] => {"attr" => value,..} even number of attr
-    # => ::attr1::attr2::attr3[.. ::attrN::attrN+1] => {"info1" => attr,"info2" => attr2..} odd number of attr
     info = ""
     if qstr.include?("::")
       chunks = qstr.split("::")
@@ -450,12 +445,18 @@ class What
         info = info + "::" + chunks[2..-1].join('::')
       end
     end
+    @info = info
     return info
   end
   
   def get_subject_tag_value(qstr)
     # get the attributes
-    words = qstr.split
+    dots = qstr.scan(/\w\.\w/)
+    if dots.empty?
+      words = qstr.split
+    else
+      words = qstr.split('.')
+    end
     subject = tag = value = ""
     case words.size
     when 1
@@ -471,6 +472,10 @@ class What
       value = words[2..-1].join(" ").strip
       target = 'value'
     end
+    self.subject = subject
+    self.tag = tag
+    self.value = value
+    self.target = target
     return subject,tag,value, target
   end
   

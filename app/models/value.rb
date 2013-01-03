@@ -35,6 +35,7 @@ class Value < ActiveRecord::Base
   end
   
   def subject
+    # since subject name is unique this is basically :tag belongs_to :subject
     self.tags.first.subject
   end
   

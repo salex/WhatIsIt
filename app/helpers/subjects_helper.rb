@@ -123,7 +123,7 @@ module SubjectsHelper
   def value_root(value)
     html = ""
     if value[:tags]
-      html << "<h5>It be the <i>Value</i> #{value_link(value)} for  #{subject_link(value[:subject])}</h5>"
+      html << "<h5>It be the <i>Value</i> #{value_link(value)}: for  #{subject_link(value[:subject])}</h5>"
       value[:tags].each do |tag|
         html << '<ul>'
         html << render_tag_and_value(value[:subject],tag,value)

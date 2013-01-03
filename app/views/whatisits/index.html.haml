@@ -27,32 +27,41 @@
 %br/
 .instructions
   %h5 Short Instructions
+  <strong><i>First let me say that this programs has very limited value, except as a learning exercise for me!. I probably learned more about 
+  Ruby and RoR with this week long exercise then I have in the last 5 years.</i></strong>
   <p>Whatsit was a command line database I first saw at the 1978 West Coast Computer Fair. I think I actually bought it and was
   amazed by what it could do. I had made several attempts over the years to replicate it, but only got so far. I decided to make another 
   attempt using RoR. I still remember typing in a command, listening the disk spin and grind and spit out the information. I can't find 
   much on it on the web, but found this 
-  <a href="http://www.moofgroup.com/moof/Roby_Sherman/Adventures_in_Silicon/Entries/2006/12/27_Wow!_Howd_All_That_Stuff_Get_In_There.html">
-  link</a> that display what the command line interaction looked like.
+  <strong><a href="http://www.moofgroup.com/moof/Roby_Sherman/Adventures_in_Silicon/Entries/2006/12/27_Wow!_Howd_All_That_Stuff_Get_In_There.html">
+  link</a></strong> that displays what the command line interaction looked like.
   </p>
   <p>I was going to attempt the command line interaction using AJAX and javascript, but chickened out. What I came up with is close. The submit button is
   grayed out, but usable (or just use the Return key in the search field). 
   I added radio buttons instead of a text box for the Yes/No inputs. Susan, Sheila and Doug may remember an early attempt at
   the TechnaCenter using some database that I can't remember the name(Remembered Reflex - I think?).
   </p>
-  <p>There are only three commands: What's, Who's and Isn't. Isn't deletes a Subject or Tag and is the only command that is required. The database has three
-  models: Subject->Tag<-Value (S/T/V). Subject and Tab attribute name must not contain spaces, use underscores. Value is wide open. The Subject name is forced to unique.
+  
+  <p>There are only four commands: What's, Who's, New's and Forget's. Forget's deletes a Subject, tag or Tag and is the only 
+  command that is required. The database has three
+  models: Subject->Tag<-Value (S/T/V). 
+  Subject and Tab attribute name must not contain spaces or |'s, use underscores. Value is wide open. The Subject name is forced to be unique.
   I took some liberty with the commands:
   <ul>
   <li> What's Steve's Phone's is the same as Steve's Phone's or just drop the 's and use Steve phone.</li> 
   <li> Who's dumps a Subject, but just typing the subject name will do the same</li>
   <li> You can add a new relation by simple type three or more words: Steve Phone Home::256-467-4348</li>
   <li> The double colon allows you to add more information to the value. If you modify the Value, you can actually add other attributes</li>
-  <li> Typing three words that match S/T/V will allow you to change the Value</li>
-  <li> Typing two words that match S/T and a third word that does not match V, will allow to append a new Value using the same Tag</li>
+  <li> 
+  <del> Typing three words that match S/T/V will allow you to change the Value</del>
+  You can change anything anywhere with the <a>&#187;</a> link.
+  <li> Typing two words that match S/T and a third word that does not match V, will allow you to append a new Value using the same Tag</li>
   <li> All searches use ILIKE with a '%' wild card. StE% will find Steve. Classic wild cards: word% = starts with, %word% = contains, %word = ends with</li>
-  <li> Typing one word will look for that name in all models.</li>
+  <li> Typing one word will look for that name in all models, starting with Subject.</li>
   <li> Typing two words will first look for Subject/Tag and if not found will look at all the relations: Phone Home will find anyones home phone.
   Steve Wanda% will Steve's mother if Mother is the tag that links Steve to Wanda P Hrobak </li>
+  <li> Typing three words that don't match S/T/V will allow you to add that item.</li>
+  <li> For the geeks in us, you can also use dot notation, steve.phone.home, steve.number.3 4434 334343, but it restricts '.' being used in the value </li>
   </ul>
   </p> 
   

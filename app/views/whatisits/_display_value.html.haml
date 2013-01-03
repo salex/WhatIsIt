@@ -2,7 +2,7 @@
 -if true
   -title "Value" 
   #edited
-  - if @what.response[:hash][:value] && @what.response[:hash][:value].empty?
+  - if @what.response[:hash][:value] && !@what.response[:hash][:value].empty?
     = values_root(@what.response[:hash][:value])
     
   -elsif  @what.response[:hash][:values]  && !@what.response[:hash][:values].empty?
